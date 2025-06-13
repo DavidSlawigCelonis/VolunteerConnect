@@ -23,11 +23,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session configuration
   app.use(session({
     secret: "your-secret-key", // In production, use a secure secret
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      sameSite: "lax"
     }
   }));
 
@@ -56,20 +58,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Login route
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.json({ message: "Login successful" });
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.status(401).json({ message: info.message || "Invalid credentials" });
+      }
+      req.logIn(user, (err: any) => {
+        if (err) {
+          return next(err);
+        }
+        return res.json({ message: "Login successful", user });
+      });
+    })(req, res, next);
   });
 
   // Logout route
   app.post("/api/logout", (req, res) => {
     req.logout(() => {
-      res.json({ message: "Logout successful" });
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ message: "Failed to logout" });
+        }
+        res.clearCookie("connect.sid");
+        res.json({ message: "Logout successful" });
+      });
     });
   });
 
   // Check authentication status
   app.get("/api/auth/status", (req, res) => {
-    res.json({ isAuthenticated: req.isAuthenticated() });
+    res.json({ 
+      isAuthenticated: req.isAuthenticated(),
+      user: req.user
+    });
   });
 
   // Get all projects

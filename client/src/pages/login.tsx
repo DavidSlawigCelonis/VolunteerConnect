@@ -31,30 +31,31 @@ export default function Login() {
     },
   });
 
-  const checkAuthStatus = async () => {
-    try {
-      const response = await fetch("/api/auth/status", {
-        credentials: "include",
-      });
-      const data = await response.json();
-      if (data.isAuthenticated) {
-        setLocation("/admin");
-      }
-    } catch (error) {
-      console.error("Failed to check auth status:", error);
-    }
-  };
-
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
-      await apiRequest("POST", "/api/login", data);
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to login");
+      }
+
+      const result = await response.json();
       toast({
         title: "Success",
         description: "Login successful!",
       });
-      // Check auth status and redirect if authenticated
-      await checkAuthStatus();
+      
+      // Redirect to home page after successful login
+      setLocation("/");
     } catch (error) {
       toast({
         title: "Error",
