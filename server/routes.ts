@@ -178,12 +178,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create the application
       const application = await storage.createApplication(validatedData);
       
-      // Update project status to accepted
-      await storage.updateProjectStatus(validatedData.projectId, "accepted");
-      
       // Simulate email confirmation
       console.log("📧 Email notification sent to:", validatedData.volunteerEmail);
-      console.log("✅ Application accepted for project ID:", validatedData.projectId);
+      console.log("✅ Application received for project ID:", validatedData.projectId);
       
       res.status(201).json(application);
     } catch (error) {

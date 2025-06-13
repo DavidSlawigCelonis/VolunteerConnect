@@ -8,7 +8,7 @@ import SuccessModal from "@/components/success-modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, HandHeart, Users, CheckCircle, Settings } from "lucide-react";
+import { Search, HandHeart, Users, CheckCircle, Settings, ClipboardList } from "lucide-react";
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -119,8 +119,8 @@ export default function Home() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="text-green-600 h-6 w-6" />
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <ClipboardList className="text-blue-600 h-6 w-6" />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-bold text-gray-900">{projects.length}</p>
@@ -132,12 +132,25 @@ export default function Home() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="text-green-600 h-6 w-6" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-2xl font-bold text-gray-900">{projects.filter(p => p.status === "Open").length}</p>
+                    <p className="text-sm text-gray-600">Open Projects</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <HandHeart className="text-purple-600 h-6 w-6" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-2xl font-bold text-gray-900">{filteredProjects.length}</p>
-                    <p className="text-sm text-gray-600">Filtered Projects</p>
+                    <p className="text-2xl font-bold text-gray-900">{projects.filter(p => p.status === "accepted").length}</p>
+                    <p className="text-sm text-gray-600">Accepted Projects</p>
                   </div>
                 </div>
               </CardContent>
