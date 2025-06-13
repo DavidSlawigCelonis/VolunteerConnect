@@ -29,6 +29,7 @@ function Router() {
       }
 
       const data = await response.json();
+      console.log("Auth check result:", data);
       setIsAuthenticated(data.isAuthenticated);
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -38,17 +39,14 @@ function Router() {
     }
   };
 
-  // Check auth status on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  // Re-check auth status when the route changes
+  // Check auth status on mount and when the route changes
   useEffect(() => {
     const handleRouteChange = () => {
+      setIsLoading(true);
       checkAuth();
     };
 
+    handleRouteChange(); // Initial check
     window.addEventListener("popstate", handleRouteChange);
     return () => {
       window.removeEventListener("popstate", handleRouteChange);

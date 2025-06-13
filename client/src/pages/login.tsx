@@ -89,14 +89,20 @@ export default function Login() {
         description: "Login successful!",
       });
 
-      // Wait for session to be set
-      console.log("Waiting for session to be set...");
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for session to be set and verify authentication
+      let isAuthenticated = false;
+      let retries = 0;
+      const maxRetries = 5;
 
-      // Verify authentication status
-      console.log("Checking authentication status...");
-      const isAuthenticated = await checkAuthStatus();
-      console.log("Final auth status:", isAuthenticated);
+      while (!isAuthenticated && retries < maxRetries) {
+        console.log(`Checking authentication status (attempt ${retries + 1}/${maxRetries})...`);
+        isAuthenticated = await checkAuthStatus();
+        
+        if (!isAuthenticated) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          retries++;
+        }
+      }
 
       if (isAuthenticated) {
         console.log("Authentication confirmed, redirecting to /admin...");
