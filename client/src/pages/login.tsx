@@ -57,11 +57,8 @@ export default function Login() {
         description: "Login successful!",
       });
 
-      // Force a small delay to ensure the session is set
-      setTimeout(() => {
-        // Redirect to admin page
-        window.location.href = "/admin";
-      }, 100);
+      // Use the router to navigate to admin page
+      setLocation("/admin");
     } catch (error) {
       toast({
         title: "Error",
