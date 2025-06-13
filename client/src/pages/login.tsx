@@ -48,14 +48,20 @@ export default function Login() {
         throw new Error(error.message || "Failed to login");
       }
 
-      const result = await response.json();
+      // Wait for the response to be processed
+      await response.json();
+      
+      // Show success message
       toast({
         title: "Success",
         description: "Login successful!",
       });
-      
-      // Redirect to admin page after successful login
-      setLocation("/admin");
+
+      // Force a small delay to ensure the session is set
+      setTimeout(() => {
+        // Redirect to admin page
+        window.location.href = "/admin";
+      }, 100);
     } catch (error) {
       toast({
         title: "Error",
