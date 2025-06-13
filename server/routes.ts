@@ -34,11 +34,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     resave: true,
     saveUninitialized: true,
     cookie: {
-      secure: false, // Set to false for development
+      secure: process.env.NODE_ENV === 'production', // Set to true in production
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       httpOnly: true,
       sameSite: "lax",
-      path: "/"
+      path: "/",
+      domain: process.env.NODE_ENV === 'production' ? '.blender.com' : undefined // Add domain in production
     }
   }));
 

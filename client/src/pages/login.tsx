@@ -58,7 +58,7 @@ export default function Login() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
-      console.log("Attempting login...");
+      console.log("Attempting login with username:", data.username);
       
       const response = await fetch("/api/login", {
         method: "POST",
@@ -71,6 +71,7 @@ export default function Login() {
       });
 
       console.log("Login response status:", response.status);
+      console.log("Login response headers:", Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const error = await response.json();
@@ -79,7 +80,7 @@ export default function Login() {
       }
 
       const responseData = await response.json();
-      console.log("Login successful:", responseData);
+      console.log("Login successful, response data:", responseData);
       
       // Show success message
       toast({
@@ -88,15 +89,19 @@ export default function Login() {
       });
 
       // Wait for session to be set
+      console.log("Waiting for session to be set...");
       await new Promise(resolve => setTimeout(resolve, 500));
 
       // Verify authentication status
+      console.log("Checking authentication status...");
       const isAuthenticated = await checkAuthStatus();
       console.log("Final auth status:", isAuthenticated);
 
       if (isAuthenticated) {
+        console.log("Authentication confirmed, redirecting to /admin...");
         setLocation("/admin");
       } else {
+        console.error("Authentication check failed after successful login");
         throw new Error("Authentication failed after login");
       }
     } catch (error) {
