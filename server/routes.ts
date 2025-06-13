@@ -29,7 +29,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       httpOnly: true,
-      sameSite: "lax"
+      sameSite: "lax",
+      path: "/"
     }
   }));
 
@@ -70,7 +71,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (err) {
           return next(err);
         }
-        return res.json({ message: "Login successful", user });
+        // Save session explicitly
+        req.session.save((err: any) => {
+          if (err) {
+            return next(err);
+          }
+          return res.json({ message: "Login successful", user });
+        });
       });
     })(req, res, next);
   });
@@ -78,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Logout route
   app.post("/api/logout", (req, res) => {
     req.logout(() => {
-      req.session.destroy((err) => {
+      req.session.destroy((err: any) => {
         if (err) {
           return res.status(500).json({ message: "Failed to logout" });
         }
