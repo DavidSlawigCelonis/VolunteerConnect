@@ -17,31 +17,25 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
 
-  const availableProjects = projects.filter(p => p.status === "Open");
-  const acceptedProjects = projects.filter(p => p.status === "accepted");
-
-  const filteredProjects = availableProjects.filter(project => {
+  const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "all" || project.category?.toLowerCase() === categoryFilter;
     const matchesLocation = locationFilter === "all" || project.location?.toLowerCase() === locationFilter;
+    const matchesStatus = statusFilter === "all" || project.status?.toLowerCase() === statusFilter;
     
-    return matchesSearch && matchesCategory && matchesLocation;
+    return matchesSearch && matchesCategory && matchesLocation && matchesStatus;
   });
 
   const handleApplyClick = (project: Project) => {
     setSelectedProject(project);
     setShowApplicationModal(true);
-  };
-
-  const handleApplicationSuccess = () => {
-    setShowApplicationModal(false);
-    setShowSuccessModal(true);
   };
 
   if (isLoading) {
@@ -99,16 +93,14 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
-                <p className="text-xs text-gray-500">Project Management Platform</p>
+                <p className="text-xs text-gray-500">Find Your Perfect Volunteer Opportunity</p>
               </div>
             </div>
             <nav className="flex space-x-6">
-              <Link href="/" className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg transition-colors flex items-center">
-                <CheckCircle className="mr-2 h-4 w-4" />
+              <Link href="/" className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
                 Projects
               </Link>
-              <Link href="/admin" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors flex items-center">
-                <Settings className="mr-2 h-4 w-4" />
+              <Link href="/admin" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg">
                 Admin
               </Link>
             </nav>
@@ -131,21 +123,8 @@ export default function Home() {
                     <CheckCircle className="text-green-600 h-6 w-6" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-2xl font-bold text-gray-900">{availableProjects.length}</p>
-                    <p className="text-sm text-gray-600">Available Projects</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Users className="text-blue-600 h-6 w-6" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-2xl font-bold text-gray-900">{acceptedProjects.length}</p>
-                    <p className="text-sm text-gray-600">Active Projects</p>
+                    <p className="text-2xl font-bold text-gray-900">{projects.length}</p>
+                    <p className="text-sm text-gray-600">Total Projects</p>
                   </div>
                 </div>
               </CardContent>
@@ -157,8 +136,8 @@ export default function Home() {
                     <HandHeart className="text-purple-600 h-6 w-6" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-2xl font-bold text-gray-900">{projects.length}</p>
-                    <p className="text-sm text-gray-600">Total Projects</p>
+                    <p className="text-2xl font-bold text-gray-900">{filteredProjects.length}</p>
+                    <p className="text-sm text-gray-600">Filtered Projects</p>
                   </div>
                 </div>
               </CardContent>
@@ -166,61 +145,78 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Filter Bar */}
-        <Card className="p-4 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-gray-700">Filter by:</span>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="environment">Environment</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                  <SelectItem value="community">Community</SelectItem>
-                  <SelectItem value="healthcare">Healthcare</SelectItem>
-                  <SelectItem value="technology">Technology</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="remote">Remote</SelectItem>
-                  <SelectItem value="local">Local</SelectItem>
-                  <SelectItem value="regional">Regional</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">{filteredProjects.length} projects found</span>
+        {/* Search and Filters */}
+        <div className="mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
                   type="text"
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-64"
+                  className="pl-10"
                 />
               </div>
             </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="environment">Environment</SelectItem>
+                <SelectItem value="education">Education</SelectItem>
+                <SelectItem value="community">Community</SelectItem>
+                <SelectItem value="healthcare">Healthcare</SelectItem>
+                <SelectItem value="technology">Technology</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={locationFilter} onValueChange={setLocationFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                <SelectItem value="munich">Munich</SelectItem>
+                <SelectItem value="berlin">Berlin</SelectItem>
+                <SelectItem value="hamburg">Hamburg</SelectItem>
+                <SelectItem value="remote">Remote</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="accepted">Accepted</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </Card>
+        </div>
 
-        {/* Project Cards Grid */}
-        {filteredProjects.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <CheckCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-              <p className="text-gray-600">Try adjusting your search or filter criteria</p>
-            </CardContent>
-          </Card>
+        {/* Projects Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <div className="h-48 bg-gray-200" />
+                <CardContent className="p-6">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="text-center py-12">
+            <HandHeart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
+            <p className="text-gray-600">Try adjusting your search or filters</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
@@ -234,14 +230,18 @@ export default function Home() {
         )}
       </main>
 
-      {/* Modals */}
+      {/* Application Modal */}
       <ApplicationModal
         project={selectedProject}
         open={showApplicationModal}
         onClose={() => setShowApplicationModal(false)}
-        onSuccess={handleApplicationSuccess}
+        onSuccess={() => {
+          setShowApplicationModal(false);
+          setShowSuccessModal(true);
+        }}
       />
 
+      {/* Success Modal */}
       <SuccessModal
         open={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
