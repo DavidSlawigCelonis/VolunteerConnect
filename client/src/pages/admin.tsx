@@ -529,6 +529,18 @@ export default function Admin() {
                       </div>
                     </div>
                     <div className="mt-4">
+                      <h4 className="text-sm font-medium mb-2">Project Details</h4>
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-gray-900">{application.project?.title}</p>
+                        <p className="text-sm text-gray-500">{application.project?.category}</p>
+                        <div className="flex items-center gap-4 mt-2">
+                          <span className="text-sm text-gray-500">{application.project?.timeCommitment}</span>
+                          <span className="text-sm text-gray-500">{application.project?.duration}</span>
+                          <span className="text-sm text-gray-500">{application.project?.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4">
                       <h4 className="text-sm font-medium mb-2">Motivation</h4>
                       <p className="text-sm text-gray-600">{application.motivation}</p>
                     </div>

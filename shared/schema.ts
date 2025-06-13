@@ -50,4 +50,6 @@ export const insertApplicationSchema = createInsertSchema(applications).omit({
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertApplication = z.infer<typeof insertApplicationSchema>;
-export type Application = typeof applications.$inferSelect;
+export type Application = typeof applications.$inferSelect & {
+  project?: Project;
+};

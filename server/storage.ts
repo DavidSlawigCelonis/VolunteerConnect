@@ -62,7 +62,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllApplications(): Promise<Application[]> {
-    return await db.select().from(applications).orderBy(applications.appliedAt);
+    return await db
+      .select({
+        id: applications.id,
+        projectId: applications.projectId,
+        volunteerName: applications.volunteerName,
+        volunteerEmail: applications.volunteerEmail,
+        volunteerPhone: applications.volunteerPhone,
+        motivation: applications.motivation,
+        status: applications.status,
+        appliedAt: applications.appliedAt,
+        project: {
+          id: projects.id,
+          title: projects.title,
+          description: projects.description,
+          category: projects.category,
+          status: projects.status,
+          timeCommitment: projects.timeCommitment,
+          duration: projects.duration,
+          location: projects.location
+        }
+      })
+      .from(applications)
+      .leftJoin(projects, eq(applications.projectId, projects.id))
+      .orderBy(applications.appliedAt);
   }
 
   async getApplication(id: number): Promise<Application | undefined> {
