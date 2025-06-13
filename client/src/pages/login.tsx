@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { HandHeart, LogIn } from "lucide-react";
-import MünchenLogo from "@/assets/München_Logo.svg";
+import { MünchenLogo } from '@/assets/logo';
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -121,8 +121,9 @@ export default function Login() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-4">
-            <img src={MünchenLogo} alt="München Logo" className="h-12 w-auto" />
+          <div className="flex items-center gap-2">
+            <img src={MünchenLogo} alt="München Logo" className="h-12" />
+            <h1 className="text-2xl font-bold">VolunteerHub</h1>
           </div>
           <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
         </CardHeader>

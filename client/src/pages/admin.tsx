@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { HandHeart, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send, LogOut, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import MünchenLogo from "@/assets/München_Logo.svg";
+import { MünchenLogo } from '@/assets/logo';
 
 interface AuthStatus {
   isAuthenticated: boolean;
@@ -165,10 +165,9 @@ export default function Admin() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-3">
-                <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
-                  <p className="text-xs text-gray-500">Project Management Platform</p>
+                <div className="flex items-center gap-2">
+                  <img src={MünchenLogo} alt="München Logo" className="h-10" />
+                  <h1 className="text-2xl font-bold">VolunteerHub</h1>
                 </div>
               </div>
               <nav className="flex space-x-6">
@@ -206,10 +205,9 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
-                <p className="text-xs text-gray-500">Project Management Platform</p>
+              <div className="flex items-center gap-2">
+                <img src={MünchenLogo} alt="München Logo" className="h-10" />
+                <h1 className="text-2xl font-bold">VolunteerHub</h1>
               </div>
             </div>
             <nav className="flex space-x-6">

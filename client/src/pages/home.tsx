@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Users, CheckCircle, Settings, ClipboardList } from "lucide-react";
-import MünchenLogo from "@/assets/München_Logo.svg";
+import { MünchenLogo } from '@/assets/logo';
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -46,7 +46,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-3">
-                <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
+                <img src={MünchenLogo} alt="München Logo" className="h-10" />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
                   <p className="text-xs text-gray-500">Project Management Platform</p>
@@ -87,7 +87,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
+              <img src={MünchenLogo} alt="München Logo" className="h-10" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
                 <p className="text-xs text-gray-500">Find Your Perfect Volunteer Opportunity</p>
