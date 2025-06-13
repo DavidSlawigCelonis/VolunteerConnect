@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 
 function Router() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -22,12 +23,14 @@ function Router() {
         setIsAuthenticated(data.isAuthenticated);
       } catch (error) {
         setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
     };
     checkAuth();
   }, []);
 
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return null; // Loading state
   }
 

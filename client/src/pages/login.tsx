@@ -54,8 +54,8 @@ export default function Login() {
         description: "Login successful!",
       });
       
-      // Redirect to home page after successful login
-      setLocation("/");
+      // Redirect to admin page after successful login
+      setLocation("/admin");
     } catch (error) {
       toast({
         title: "Error",
