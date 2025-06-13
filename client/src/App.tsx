@@ -16,17 +16,29 @@ function Router() {
   const checkAuth = async () => {
     try {
       const response = await fetch("/api/auth/status", {
+        method: "GET",
         credentials: "include",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to check authentication status");
+      }
+
       const data = await response.json();
       setIsAuthenticated(data.isAuthenticated);
     } catch (error) {
+      console.error("Auth check failed:", error);
       setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Check auth status on mount
   useEffect(() => {
     checkAuth();
   }, []);
@@ -44,7 +56,11 @@ function Router() {
   }, []);
 
   if (isLoading) {
-    return null; // Loading state
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   return (

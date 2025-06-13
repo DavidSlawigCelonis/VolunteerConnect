@@ -6,6 +6,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { z } from "zod";
+import MemoryStore from "memorystore";
 
 // Admin credentials - in a real app, these would be stored securely in a database
 const ADMIN_USERNAME = "admin";
@@ -20,11 +21,18 @@ const isAuthenticated = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Create a memory store with a longer TTL
+  const MemoryStoreSession = MemoryStore(session);
+
   // Session configuration
   app.use(session({
+    store: new MemoryStoreSession({
+      checkPeriod: 86400000, // Prune expired entries every 24h
+      max: 1000, // Maximum number of sessions
+    }),
     secret: "your-secret-key", // In production, use a secure secret
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
