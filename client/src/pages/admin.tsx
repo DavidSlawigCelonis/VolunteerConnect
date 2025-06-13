@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema, type Project, type Application, type InsertProject } from "@shared/schema";
@@ -18,6 +18,21 @@ import { Badge } from "@/components/ui/badge";
 export default function Admin() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const navigate = useNavigate();
+
+  // Check authentication status
+  const { data: authStatus } = useQuery({
+    queryKey: ["/api/auth/status"],
+    onError: () => {
+      navigate("/login");
+    },
+  });
+
+  useEffect(() => {
+    if (authStatus && !authStatus.isAuthenticated) {
+      navigate("/login");
+    }
+  }, [authStatus, navigate]);
 
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
@@ -118,7 +133,7 @@ export default function Admin() {
     updateApplicationStatusMutation.mutate({ applicationId, status });
   };
 
-  const availableProjects = projects.filter(p => p.status === "available");
+  const openProjects = projects.filter(p => p.status === "Open");
   const acceptedProjects = projects.filter(p => p.status === "accepted");
 
   const handleLogout = async () => {
@@ -239,8 +254,8 @@ export default function Admin() {
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="text-green-600 h-6 w-6" />
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{availableProjects.length}</p>
-                <p className="text-sm text-gray-600">Available</p>
+                <p className="text-2xl font-bold text-gray-900">{openProjects.length}</p>
+                <p className="text-sm text-gray-600">Open</p>
               </div>
             </CardContent>
           </Card>
@@ -248,10 +263,10 @@ export default function Admin() {
             <CardContent className="p-6">
               <div className="text-center">
                 <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <UserCheck className="text-orange-600 h-6 w-6" />
+                  <Users className="text-orange-600 h-6 w-6" />
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{acceptedProjects.length}</p>
-                <p className="text-sm text-gray-600">Accepted</p>
+                <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
+                <p className="text-sm text-gray-600">Applications</p>
               </div>
             </CardContent>
           </Card>
@@ -259,10 +274,10 @@ export default function Admin() {
             <CardContent className="p-6">
               <div className="text-center">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Send className="text-purple-600 h-6 w-6" />
+                  <UserCheck className="text-purple-600 h-6 w-6" />
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
-                <p className="text-sm text-gray-600">Applications</p>
+                <p className="text-2xl font-bold text-gray-900">{acceptedProjects.length}</p>
+                <p className="text-sm text-gray-600">Accepted</p>
               </div>
             </CardContent>
           </Card>
@@ -412,8 +427,57 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        {/* Projects List */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <ClipboardList className="text-blue-500 mr-3 h-5 w-5" />
+              Projects
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project) => (
+                <Card key={project.id} className="relative">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">{project.title}</h3>
+                        <p className="text-sm text-gray-500">{project.category}</p>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteProject(project.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">{project.description}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">{project.timeCommitment}</span>
+                      <span className="text-gray-500">{project.duration}</span>
+                    </div>
+                    <div className="mt-4">
+                      <Badge 
+                        variant={project.status === "Open" ? "default" : "secondary"}
+                        className={project.status === "Open" 
+                          ? "bg-green-100 text-green-800" 
+                          : "bg-orange-100 text-orange-800"
+                        }
+                      >
+                        {project.status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Applications List */}
-        <Card className="mt-8">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Inbox className="text-blue-500 mr-3 h-5 w-5" />
@@ -466,44 +530,6 @@ export default function Admin() {
                     </div>
                     <div className="mt-4 text-sm text-gray-500">
                       Applied on {new Date(application.appliedAt).toLocaleDateString()}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Projects List */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <ClipboardList className="text-blue-500 mr-3 h-5 w-5" />
-              Projects
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <Card key={project.id} className="relative">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">{project.title}</h3>
-                        <p className="text-sm text-gray-500">{project.category}</p>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteProject(project.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">{project.description}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">{project.timeCommitment}</span>
-                      <span className="text-gray-500">{project.duration}</span>
                     </div>
                   </CardContent>
                 </Card>
