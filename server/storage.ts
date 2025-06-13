@@ -8,6 +8,7 @@ export interface IStorage {
   getProject(id: number): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
   updateProjectStatus(id: number, status: string): Promise<Project | undefined>;
+  deleteProject(id: number): Promise<void>;
   
   // Applications
   createApplication(application: InsertApplication): Promise<Application>;
@@ -40,6 +41,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(projects.id, id))
       .returning();
     return project || undefined;
+  }
+
+  async deleteProject(id: number): Promise<void> {
+    await db.delete(projects).where(eq(projects.id, id));
   }
 
   async createApplication(insertApplication: InsertApplication): Promise<Application> {

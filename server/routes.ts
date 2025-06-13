@@ -156,10 +156,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete project (protected)
+  app.delete("/api/projects/:id", isAuthenticated, async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.id);
+      if (isNaN(projectId)) {
+        return res.status(400).json({ message: "Invalid project ID" });
+      }
+      await storage.deleteProject(projectId);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete project" });
+    }
+  });
+
   // Create application and update project status
   app.post("/api/applications", async (req, res) => {
     try {
-      const validatedData = insertApplicationSchema.parse(req.bdody);
+      const validatedData = insertApplicationSchema.parse(req.body);
       
       // Create the application
       const application = await storage.createApplication(validatedData);

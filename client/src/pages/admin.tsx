@@ -61,8 +61,34 @@ export default function Admin() {
     },
   });
 
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (projectId: number) => {
+      await apiRequest("DELETE", `/api/projects/${projectId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Success",
+        description: "Project deleted successfully!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: InsertProject) => {
     createProjectMutation.mutate(data);
+  };
+
+  const handleDeleteProject = (projectId: number) => {
+    if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      deleteProjectMutation.mutate(projectId);
+    }
   };
 
   const availableProjects = projects.filter(p => p.status === "available");
@@ -420,6 +446,44 @@ export default function Admin() {
                 </table>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Projects List */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <ClipboardList className="text-blue-500 mr-3 h-5 w-5" />
+              Projects
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project) => (
+                <Card key={project.id} className="relative">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">{project.title}</h3>
+                        <p className="text-sm text-gray-500">{project.category}</p>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteProject(project.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">{project.description}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">{project.timeCommitment}</span>
+                      <span className="text-gray-500">{project.duration}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
