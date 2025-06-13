@@ -159,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create application and update project status
   app.post("/api/applications", async (req, res) => {
     try {
-      const validatedData = insertApplicationSchema.parse(req.body);
+      const validatedData = insertApplicationSchema.parse(req.bdody);
       
       // Create the application
       const application = await storage.createApplication(validatedData);
