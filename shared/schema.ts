@@ -22,6 +22,7 @@ export const applications = pgTable("applications", {
   volunteerEmail: text("volunteer_email").notNull(),
   volunteerPhone: text("volunteer_phone"),
   motivation: text("motivation"),
+  status: text("status").notNull().default("pending"), // pending, accepted, rejected
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
 });
 

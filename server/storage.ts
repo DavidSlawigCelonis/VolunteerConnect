@@ -14,6 +14,8 @@ export interface IStorage {
   createApplication(application: InsertApplication): Promise<Application>;
   getApplicationsByProject(projectId: number): Promise<Application[]>;
   getAllApplications(): Promise<Application[]>;
+  getApplication(id: number): Promise<Application | undefined>;
+  updateApplicationStatus(id: number, status: string): Promise<Application | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -61,6 +63,20 @@ export class DatabaseStorage implements IStorage {
 
   async getAllApplications(): Promise<Application[]> {
     return await db.select().from(applications).orderBy(applications.appliedAt);
+  }
+
+  async getApplication(id: number): Promise<Application | undefined> {
+    const [application] = await db.select().from(applications).where(eq(applications.id, id));
+    return application || undefined;
+  }
+
+  async updateApplicationStatus(id: number, status: string): Promise<Application | undefined> {
+    const [application] = await db
+      .update(applications)
+      .set({ status })
+      .where(eq(applications.id, id))
+      .returning();
+    return application || undefined;
   }
 }
 

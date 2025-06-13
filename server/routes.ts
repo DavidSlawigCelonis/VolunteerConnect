@@ -205,6 +205,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get single application (protected)
+  app.get("/api/applications/:id", isAuthenticated, async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ message: "Invalid application ID" });
+      }
+      const application = await storage.getApplication(applicationId);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      res.json(application);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch application" });
+    }
+  });
+
+  // Update application status (protected)
+  app.patch("/api/applications/:id/status", isAuthenticated, async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ message: "Invalid application ID" });
+      }
+
+      const { status } = req.body;
+      if (!status || !["accepted", "rejected"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+
+      const application = await storage.getApplication(applicationId);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      const updatedApplication = await storage.updateApplicationStatus(applicationId, status);
+      
+      // If application is accepted, update project status
+      if (status === "accepted") {
+        await storage.updateProjectStatus(application.projectId, "accepted");
+      }
+
+      res.json(updatedApplication);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update application status" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

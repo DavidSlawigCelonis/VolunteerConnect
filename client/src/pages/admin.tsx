@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { HandHeart, Settings, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function Admin() {
   const { toast } = useToast();
@@ -81,6 +82,28 @@ export default function Admin() {
     },
   });
 
+  const updateApplicationStatusMutation = useMutation({
+    mutationFn: async ({ applicationId, status }: { applicationId: number; status: string }) => {
+      const response = await apiRequest("PATCH", `/api/applications/${applicationId}/status`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Success",
+        description: "Application status updated successfully!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: InsertProject) => {
     createProjectMutation.mutate(data);
   };
@@ -89,6 +112,10 @@ export default function Admin() {
     if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
       deleteProjectMutation.mutate(projectId);
     }
+  };
+
+  const handleUpdateApplicationStatus = (applicationId: number, status: string) => {
+    updateApplicationStatusMutation.mutate({ applicationId, status });
   };
 
   const availableProjects = projects.filter(p => p.status === "available");
@@ -385,67 +412,65 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        {/* Recent Applications */}
-        <Card>
+        {/* Applications List */}
+        <Card className="mt-8">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Inbox className="text-blue-500 mr-3 h-5 w-5" />
-              Recent Applications
+              Applications
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {applications.length === 0 ? (
-              <div className="text-center py-8">
-                <Inbox className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
-                <p className="text-gray-600">Applications will appear here once volunteers start applying</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Applicant</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Project ID</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Applied</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Phone</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {applications.map((application) => (
-                      <tr key={application.id} className="hover:bg-gray-50">
-                        <td className="py-4 px-4">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                              <span className="text-blue-600 font-medium text-sm">
-                                {application.volunteerName.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900">{application.volunteerName}</p>
-                              <p className="text-sm text-gray-500">{application.volunteerEmail}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <p className="font-medium text-gray-900">Project #{application.projectId}</p>
-                        </td>
-                        <td className="py-4 px-4">
-                          <p className="text-sm text-gray-600">
-                            {new Date(application.appliedAt).toLocaleDateString()}
-                          </p>
-                        </td>
-                        <td className="py-4 px-4">
-                          <p className="text-sm text-gray-600">
-                            {application.volunteerPhone || "Not provided"}
-                          </p>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="space-y-4">
+              {applications.map((application) => (
+                <Card key={application.id} className="relative">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">{application.volunteerName}</h3>
+                        <p className="text-sm text-gray-500">{application.volunteerEmail}</p>
+                        {application.volunteerPhone && (
+                          <p className="text-sm text-gray-500">{application.volunteerPhone}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        {application.status === "pending" && (
+                          <>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleUpdateApplicationStatus(application.id, "accepted")}
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleUpdateApplicationStatus(application.id, "rejected")}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                        {application.status === "accepted" && (
+                          <Badge className="bg-green-100 text-green-800">Accepted</Badge>
+                        )}
+                        {application.status === "rejected" && (
+                          <Badge className="bg-red-100 text-red-800">Rejected</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium mb-2">Motivation</h4>
+                      <p className="text-sm text-gray-600">{application.motivation}</p>
+                    </div>
+                    <div className="mt-4 text-sm text-gray-500">
+                      Applied on {new Date(application.appliedAt).toLocaleDateString()}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
