@@ -69,18 +69,18 @@ export default function ProjectCard({ project, onApplyClick }: ProjectCardProps)
         </div>
         <div className="flex items-center justify-between">
           <Badge 
-            variant={project.status === "available" ? "default" : "secondary"}
-            className={project.status === "available" 
+            variant={project.status === "Open" ? "default" : "secondary"}
+            className={project.status === "Open" 
               ? "bg-green-100 text-green-800 hover:bg-green-100" 
               : "bg-orange-100 text-orange-800"
             }
           >
             <div className={`w-2 h-2 rounded-full mr-1.5 ${
-              project.status === "available" ? "bg-green-400" : "bg-orange-400"
+              project.status === "Open" ? "bg-green-400" : "bg-orange-400"
             }`} />
-            {project.status === "available" ? "Available" : "Accepted"}
+            {project.status === "Open" ? "Open" : "Accepted"}
           </Badge>
-          {project.status === "available" ? (
+          {project.status === "Open" ? (
             <Button 
               onClick={() => onApplyClick(project)}
               className="bg-blue-500 hover:bg-blue-600 text-white"

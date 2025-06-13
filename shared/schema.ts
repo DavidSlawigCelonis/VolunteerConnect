@@ -8,7 +8,7 @@ export const projects = pgTable("projects", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(),
-  status: text("status").notNull().default("available"), // available, accepted
+  status: text("status").notNull().default("Open"), // Open, accepted
   timeCommitment: text("time_commitment"),
   duration: text("duration"),
   location: text("location"),

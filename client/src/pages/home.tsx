@@ -22,7 +22,7 @@ export default function Home() {
     queryKey: ["/api/projects"],
   });
 
-  const availableProjects = projects.filter(p => p.status === "available");
+  const availableProjects = projects.filter(p => p.status === "Open");
   const acceptedProjects = projects.filter(p => p.status === "accepted");
 
   const filteredProjects = availableProjects.filter(project => {

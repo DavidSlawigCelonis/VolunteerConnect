@@ -32,7 +32,7 @@ export default function Admin() {
       title: "",
       description: "",
       category: "",
-      status: "available",
+      status: "Open",
       timeCommitment: "",
       duration: "",
       location: "",
