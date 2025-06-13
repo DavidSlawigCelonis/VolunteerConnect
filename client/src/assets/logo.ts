@@ -30,4 +30,3 @@ export const MünchenLogo = "data:image/svg+xml;base64," + btoa(`<?xml version="
        style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.26932389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.86400008;stroke-opacity:1;stroke-dasharray:none" />
   </g>
 </svg>`);
-</rewritten_file> 
