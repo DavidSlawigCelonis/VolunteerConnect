@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema, type Project, type Application, type InsertProject } from "@shared/schema";
@@ -12,10 +12,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { HandHeart, Settings, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send } from "lucide-react";
+import { HandHeart, Settings, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send, LogOut } from "lucide-react";
 
 export default function Admin() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
@@ -66,6 +67,23 @@ export default function Admin() {
 
   const availableProjects = projects.filter(p => p.status === "available");
   const acceptedProjects = projects.filter(p => p.status === "accepted");
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/logout");
+      toast({
+        title: "Success",
+        description: "Logged out successfully!",
+      });
+      setLocation("/login");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to logout",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (projectsLoading || applicationsLoading) {
     return (
@@ -130,10 +148,14 @@ export default function Admin() {
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Projects
               </Link>
-              <Link href="/admin" className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg transition-colors flex items-center">
-                <Settings className="mr-2 h-4 w-4" />
-                Admin
-              </Link>
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors flex items-center"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
             </nav>
           </div>
         </div>

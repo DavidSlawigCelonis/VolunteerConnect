@@ -2,8 +2,76 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema, insertApplicationSchema } from "@shared/schema";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { z } from "zod";
+
+// Admin credentials - in a real app, these would be stored securely in a database
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "admin123"; // In production, use a secure password
+
+// Authentication middleware
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized" });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Session configuration
+  app.use(session({
+    secret: "your-secret-key", // In production, use a secure secret
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  // Initialize Passport
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Passport configuration
+  passport.use(new LocalStrategy((username, password, done) => {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      return done(null, { id: 1, username: ADMIN_USERNAME });
+    }
+    return done(null, false, { message: "Invalid credentials" });
+  }));
+
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser((id: number, done) => {
+    if (id === 1) {
+      done(null, { id: 1, username: ADMIN_USERNAME });
+    } else {
+      done(null, false);
+    }
+  });
+
+  // Login route
+  app.post("/api/login", passport.authenticate("local"), (req, res) => {
+    res.json({ message: "Login successful" });
+  });
+
+  // Logout route
+  app.post("/api/logout", (req, res) => {
+    req.logout(() => {
+      res.json({ message: "Logout successful" });
+    });
+  });
+
+  // Check authentication status
+  app.get("/api/auth/status", (req, res) => {
+    res.json({ isAuthenticated: req.isAuthenticated() });
+  });
+
   // Get all projects
   app.get("/api/projects", async (req, res) => {
     try {
@@ -14,8 +82,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new project
-  app.post("/api/projects", async (req, res) => {
+  // Create new project (protected)
+  app.post("/api/projects", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(validatedData);
@@ -54,8 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all applications (for admin)
-  app.get("/api/applications", async (req, res) => {
+  // Get all applications (protected)
+  app.get("/api/applications", isAuthenticated, async (req, res) => {
     try {
       const applications = await storage.getAllApplications();
       res.json(applications);
