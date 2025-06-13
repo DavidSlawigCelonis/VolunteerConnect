@@ -12,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { HandHeart, Settings, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send, LogOut } from "lucide-react";
+import { HandHeart, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send, LogOut, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import MünchenLogo from "@/assets/München_Logo.svg";
 
 interface AuthStatus {
   isAuthenticated: boolean;
@@ -164,9 +165,7 @@ export default function Admin() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <HandHeart className="text-white" />
-                </div>
+                <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
                   <p className="text-xs text-gray-500">Project Management Platform</p>
@@ -207,9 +206,7 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                <HandHeart className="text-white" />
-              </div>
+              <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
                 <p className="text-xs text-gray-500">Project Management Platform</p>

@@ -8,7 +8,8 @@ import SuccessModal from "@/components/success-modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, HandHeart, Users, CheckCircle, Settings, ClipboardList } from "lucide-react";
+import { Search, Users, CheckCircle, Settings, ClipboardList } from "lucide-react";
+import MünchenLogo from "@/assets/München_Logo.svg";
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -45,9 +46,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <HandHeart className="text-white text-lg" />
-                </div>
+                <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
                   <p className="text-xs text-gray-500">Project Management Platform</p>
@@ -88,9 +87,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                <HandHeart className="text-white" />
-              </div>
+              <img src={MünchenLogo} alt="München Logo" className="h-10 w-auto" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">VolunteerHub</h1>
                 <p className="text-xs text-gray-500">Find Your Perfect Volunteer Opportunity</p>
@@ -146,7 +143,7 @@ export default function Home() {
               <CardContent className="p-6">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <HandHeart className="text-purple-600 h-6 w-6" />
+                    <CheckCircle className="text-purple-600 h-6 w-6" />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-bold text-gray-900">{projects.filter(p => p.status === "accepted").length}</p>
@@ -226,7 +223,7 @@ export default function Home() {
           </div>
         ) : filteredProjects.length === 0 ? (
           <div className="text-center py-12">
-            <HandHeart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <CheckCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
             <p className="text-gray-600">Try adjusting your search or filters</p>
           </div>
