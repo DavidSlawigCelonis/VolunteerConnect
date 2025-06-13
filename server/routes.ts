@@ -31,15 +31,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       max: 1000, // Maximum number of sessions
     }),
     secret: "your-secret-key", // In production, use a secure secret
-    resave: true,
-    saveUninitialized: true,
+    resave: false, // Changed to false to prevent unnecessary session saves
+    saveUninitialized: false, // Changed to false to prevent saving uninitialized sessions
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
+      secure: false, // Set to false in development
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      domain: process.env.NODE_ENV === 'production' ? '.blender.com' : undefined // Add domain in production
     }
   }));
 
