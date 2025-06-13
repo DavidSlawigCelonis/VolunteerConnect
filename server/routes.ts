@@ -31,10 +31,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       max: 1000, // Maximum number of sessions
     }),
     secret: "your-secret-key", // In production, use a secure secret
-    resave: true, // Changed back to true to ensure session is saved
-    saveUninitialized: true, // Changed back to true to ensure session is saved
+    resave: true,
+    saveUninitialized: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: false, // Set to false for development
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       httpOnly: true,
       sameSite: "lax",
@@ -96,6 +96,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return next(err);
           }
           console.log("Session saved successfully");
+          // Set a custom header to indicate successful login
+          res.setHeader('X-Auth-Status', 'success');
           return res.json({ message: "Login successful", user });
         });
       });
@@ -122,6 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/auth/status", (req, res) => {
     console.log("Auth status check - isAuthenticated:", req.isAuthenticated());
     console.log("Auth status check - user:", req.user);
+    console.log("Auth status check - session:", req.session);
     res.json({ 
       isAuthenticated: req.isAuthenticated(),
       user: req.user

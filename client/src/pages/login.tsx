@@ -31,6 +31,30 @@ export default function Login() {
     },
   });
 
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch("/api/auth/status", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check authentication status");
+      }
+
+      const data = await response.json();
+      console.log("Auth status check result:", data);
+      return data.isAuthenticated;
+    } catch (error) {
+      console.error("Auth status check failed:", error);
+      return false;
+    }
+  };
+
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
@@ -63,17 +87,14 @@ export default function Login() {
         description: "Login successful!",
       });
 
-      // Force a small delay to ensure the session is set
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for session to be set
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Check auth status before redirecting
-      const authCheck = await fetch("/api/auth/status", {
-        credentials: "include",
-      });
-      const authData = await authCheck.json();
-      console.log("Auth status after login:", authData);
+      // Verify authentication status
+      const isAuthenticated = await checkAuthStatus();
+      console.log("Final auth status:", isAuthenticated);
 
-      if (authData.isAuthenticated) {
+      if (isAuthenticated) {
         setLocation("/admin");
       } else {
         throw new Error("Authentication failed after login");
