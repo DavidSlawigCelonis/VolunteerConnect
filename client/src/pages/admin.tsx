@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProjectSchema, type Project, type Application, type InsertProject } from "@shared/schema";
@@ -15,24 +15,28 @@ import { useToast } from "@/hooks/use-toast";
 import { HandHeart, Settings, CheckCircle, Users, ClipboardList, PlusCircle, Inbox, UserCheck, Send, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+interface AuthStatus {
+  isAuthenticated: boolean;
+  user: {
+    id: number;
+    username: string;
+  } | null;
+}
+
 export default function Admin() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const navigate = useNavigate();
 
   // Check authentication status
-  const { data: authStatus } = useQuery({
+  const { data: authStatus } = useQuery<AuthStatus>({
     queryKey: ["/api/auth/status"],
-    onError: () => {
-      navigate("/login");
-    },
   });
 
   useEffect(() => {
     if (authStatus && !authStatus.isAuthenticated) {
-      navigate("/login");
+      setLocation("/login");
     }
-  }, [authStatus, navigate]);
+  }, [authStatus, setLocation]);
 
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
