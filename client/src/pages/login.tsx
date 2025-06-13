@@ -31,6 +31,20 @@ export default function Login() {
     },
   });
 
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch("/api/auth/status", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (data.isAuthenticated) {
+        setLocation("/admin");
+      }
+    } catch (error) {
+      console.error("Failed to check auth status:", error);
+    }
+  };
+
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
@@ -39,7 +53,8 @@ export default function Login() {
         title: "Success",
         description: "Login successful!",
       });
-      setLocation("/admin");
+      // Check auth status and redirect if authenticated
+      await checkAuthStatus();
     } catch (error) {
       toast({
         title: "Error",
