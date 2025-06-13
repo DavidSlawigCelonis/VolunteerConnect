@@ -34,22 +34,28 @@ export default function Login() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
+      console.log("Attempting login...");
+      
       const response = await fetch("/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify(data),
         credentials: "include",
       });
 
+      console.log("Login response status:", response.status);
+      
       if (!response.ok) {
         const error = await response.json();
+        console.error("Login failed:", error);
         throw new Error(error.message || "Failed to login");
       }
 
-      // Wait for the response to be processed
-      await response.json();
+      const responseData = await response.json();
+      console.log("Login successful:", responseData);
       
       // Show success message
       toast({
@@ -57,9 +63,23 @@ export default function Login() {
         description: "Login successful!",
       });
 
-      // Use the router to navigate to admin page
-      setLocation("/admin");
+      // Force a small delay to ensure the session is set
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Check auth status before redirecting
+      const authCheck = await fetch("/api/auth/status", {
+        credentials: "include",
+      });
+      const authData = await authCheck.json();
+      console.log("Auth status after login:", authData);
+
+      if (authData.isAuthenticated) {
+        setLocation("/admin");
+      } else {
+        throw new Error("Authentication failed after login");
+      }
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to login",

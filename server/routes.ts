@@ -31,8 +31,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       max: 1000, // Maximum number of sessions
     }),
     secret: "your-secret-key", // In production, use a secure secret
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Changed back to true to ensure session is saved
+    saveUninitialized: true, // Changed back to true to ensure session is saved
     cookie: {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -48,17 +48,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Passport configuration
   passport.use(new LocalStrategy((username, password, done) => {
+    console.log("Attempting login for user:", username);
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      console.log("Login successful for user:", username);
       return done(null, { id: 1, username: ADMIN_USERNAME });
     }
+    console.log("Login failed for user:", username);
     return done(null, false, { message: "Invalid credentials" });
   }));
 
   passport.serializeUser((user: any, done) => {
+    console.log("Serializing user:", user);
     done(null, user.id);
   });
 
   passport.deserializeUser((id: number, done) => {
+    console.log("Deserializing user with id:", id);
     if (id === 1) {
       done(null, { id: 1, username: ADMIN_USERNAME });
     } else {
@@ -68,22 +73,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Login route
   app.post("/api/login", (req, res, next) => {
+    console.log("Login request received");
     passport.authenticate("local", (err: any, user: any, info: any) => {
       if (err) {
+        console.error("Login error:", err);
         return next(err);
       }
       if (!user) {
+        console.log("Login failed:", info);
         return res.status(401).json({ message: info.message || "Invalid credentials" });
       }
       req.logIn(user, (err: any) => {
         if (err) {
+          console.error("Login error:", err);
           return next(err);
         }
+        console.log("User logged in successfully:", user);
         // Save session explicitly
         req.session.save((err: any) => {
           if (err) {
+            console.error("Session save error:", err);
             return next(err);
           }
+          console.log("Session saved successfully");
           return res.json({ message: "Login successful", user });
         });
       });
@@ -92,11 +104,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Logout route
   app.post("/api/logout", (req, res) => {
+    console.log("Logout request received");
     req.logout(() => {
       req.session.destroy((err: any) => {
         if (err) {
+          console.error("Logout error:", err);
           return res.status(500).json({ message: "Failed to logout" });
         }
+        console.log("Session destroyed successfully");
         res.clearCookie("connect.sid");
         res.json({ message: "Logout successful" });
       });
@@ -105,6 +120,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Check authentication status
   app.get("/api/auth/status", (req, res) => {
+    console.log("Auth status check - isAuthenticated:", req.isAuthenticated());
+    console.log("Auth status check - user:", req.user);
     res.json({ 
       isAuthenticated: req.isAuthenticated(),
       user: req.user
